@@ -1,0 +1,108 @@
+{Задание:Имеется два стека символов русского алфавита. Создать "замок" стеков, 
+сцепляя два стека в один, в котором есть элементы первого стека, которых нет во втором.}
+program lab2;
+
+type
+  PList = ^TList;
+  TList = record
+    s: char;
+    next: PList;
+  end;
+
+var
+  list1, list2, list3: Plist;
+
+procedure dob(var head: Plist; news: char);//Добавляем элемент в стек
+var
+  newlist: Plist;
+begin
+  new(newlist);
+  newlist^.s := news;   //сдвигаем стек и первым элементом делаем новый
+  newlist^.next := head;
+  head := newlist;
+end;
+
+function del(var head: Plist): char;//Удаляем элемент из стека
+begin
+  result := head^.s;
+  head := head^.next;  //убираем "голову" и делаем ей след элемент 
+end;
+
+procedure writelist(head: Plist);//вывод элементов
+var
+  lastlist: Plist;
+begin
+  if head = nil then
+    WriteLn('Нет элементов удовлетворяющих условию')
+  else
+  begin
+    lastlist := head;
+    while lastlist <> nil do
+    begin
+      write(lastlist^.s:3);
+      lastlist := lastlist^.next;
+    end;
+  end;
+  writeln;
+end;
+
+procedure crlist(var head: Plist);//заполнение стека
+var
+  n, i: integer;
+  news: char;
+begin
+  head := nil;
+  writeln('Введите размер стека');
+  readln(n);
+  for i := 1 to n do
+  begin
+    write('Введите символ русского алфавита: ');
+    readln(news);
+    dob(head, news);
+  end;
+end;
+
+function check(l: Plist; const f: Plist): boolean;//Проверка подходит ли по условиям нам элемент
+var
+  q: Plist;
+begin
+  q := l;
+  result := false;
+  while q <> nil do
+  begin
+    if q^.s = f^.s then
+    begin
+      result := true;
+      break;
+    end
+    else
+    begin
+      q := q^.next;
+    end;
+  end;
+end;
+
+function choice(const list11, list22: Plist): Plist;//Отбор нужных нам элементов
+var
+  q, list3: Plist;
+begin
+  list3 := nil;
+  q := list11;
+  while q <> nil do
+  begin
+    if not check(list22, q) then  //если элемент соответствует условиям добавляем его в новый стек
+      dob(list3, q^.s);
+    q := q^.next;
+  end;
+  result := list3;
+end;
+
+
+begin
+  crlist(list1);
+  crlist(list2);
+  writelist(list1);
+  writelist(list2);
+  list3 := choice(list1, list2);
+  writelist(list3);
+end.
